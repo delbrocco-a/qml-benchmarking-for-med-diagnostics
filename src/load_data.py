@@ -14,9 +14,11 @@ def split_data(data: pd.DataFrame, target: str, split: Optional[float] = 0.2
   ) -> dict:
   """Splits data into training & testing, features & targets, dictionaries"""
 
+  ### Separate target column from data column for training & testing
   targs = data[target].values
   feats = data.drop(target, axis=1).values
 
+  ### Test train split ...
   feats_train, feats_test, targs_train, targs_test = tt_split(
     feats, targs, test_size=split
   )
