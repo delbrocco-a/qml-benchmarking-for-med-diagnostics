@@ -2,10 +2,10 @@ import pandas as pd
 from sklearn.model_selection import train_test_split as tt_split
 from typing import Optional
 
-TRAIN = "training" 
-TEST  = "testing"
-FEATS = "features"
-TARGS = "targets"
+TRAINING = "training" 
+TESTING  = "testing"
+FEATURES = "features"
+TARGETS = "targets"
 
 def load_csv(file_path: str) -> tuple[pd.DataFrame, list[str]]:
   """Loads CSV data from file, into CSV data frame with header list"""
