@@ -28,8 +28,8 @@ def split_data(data: pd.DataFrame, target: str, split: Optional[float] = 0.2
   )
 
   return {
-    TRAIN : { FEATS: feats_train, TARGS: targs_train },
-    TEST  : { FEATS: feats_test,  TARGS: targs_test  }
+    TRAINING : { FEATURES: feats_train, TARGETS: targs_train },
+    TESTING  : { FEATURES: feats_test,  TARGETS: targs_test  }
   }
 
 
