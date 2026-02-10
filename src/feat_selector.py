@@ -7,6 +7,8 @@ from src.load_data import TRAINING, TESTING, FEATURES, TARGETS
 def PCASelect(
   select: int, feats: int, data: dict
 ) -> tuple[np.ndarray, np.ndarray]:
+  """Performs SelectKBest (select), then PCA (feats) on training & testing 
+  data, returning a dataset with feats features for training & testing"""
   
   selector = SelectKBest(f_classif, k=select)
   feats_train_select = selector.fit_transform(
