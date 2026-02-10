@@ -2,6 +2,11 @@ import pandas as pd
 from sklearn.model_selection import train_test_split as tt_split
 from typing import Optional
 
+TRAINING = "training" 
+TESTING  = "testing"
+FEATURES = "features"
+TARGETS = "targets"
+
 def load_csv(file_path: str) -> tuple[pd.DataFrame, list[str]]:
   """Loads CSV data from file, into CSV data frame with header list"""
 
@@ -23,8 +28,8 @@ def split_data(data: pd.DataFrame, target: str, split: Optional[float] = 0.2
   )
 
   return {
-    "training" : { "features": feats_train, "targets": targs_train },
-    "testing"  : { "features": feats_test,  "targets": targs_test  },
+    TRAINING : { FEATURES: feats_train, TARGETS: targs_train },
+    TESTING  : { FEATURES: feats_test,  TARGETS: targs_test  }
   }
 
 
