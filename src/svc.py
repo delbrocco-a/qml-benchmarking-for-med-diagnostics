@@ -3,10 +3,12 @@ from typing import Optional
 
 from src.load_data import FEATURES, TARGETS
 
+
 LIN     = "linear"
 POLY    = "poly"
 RBF     = "rbf"
 SIGMOID = "sigmoid"
+
 
 def trainSVC(data: dict, kernel: Optional[str]="rbf") -> SVC:
   """Trains a classical SVC model using training data"""

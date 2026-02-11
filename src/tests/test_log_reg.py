@@ -4,6 +4,7 @@ from sklearn.linear_model import LogisticRegression
 from src.log_reg import trainLogReg, evalLogReg
 from src.load_data import FEATURES, TARGETS
 
+
 def test_log_reg_training_and_evaluation_flow():
   fake_log_reg = MagicMock(spec=LogisticRegression)
   fake_log_reg.score.return_value = 0.85

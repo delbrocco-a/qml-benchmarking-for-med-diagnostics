@@ -2,6 +2,7 @@ import numpy as np
 
 from src.feat_selector import PCASelect
 
+
 def test_pceselect_basic_behavior():
   rng = np.random.default_rng(42)
 

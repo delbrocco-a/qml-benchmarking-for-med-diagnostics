@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from src.load_data import load_csv, split_data
 
+
 LOAD_CSV_TEST_CONTENT = "a,b,c\n1,2,3\n4,5,6"
 LOAD_CSV_TEST_ANSWERS = [
   ["a", "b", "c"], (2, 3)
@@ -16,6 +17,7 @@ SPLIT_DATA_TEST_CONTENT = [
   "target", 
   0.4 ### Split ratio
 ]
+
 
 def test_load_csv_returns_dataframe_and_columns(tmp_path):
   ### Create fake file for us to test

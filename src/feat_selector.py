@@ -4,6 +4,7 @@ import numpy as np
 
 from src.load_data import TRAINING, TESTING, FEATURES, TARGETS
 
+
 def PCASelect(
   select: int, feats: int, data: dict
 ) -> tuple[np.ndarray, np.ndarray]:

@@ -2,9 +2,11 @@ from qiskit.circuit.library import ZZFeatureMap, ZFeatureMap, PauliFeatureMap
 from qiskit_machine_learning.kernels import FidelityQuantumKernel
 from typing import Optional
 
+
 ZZ    = "ZZFeatureMap"
 Z     = "ZFeatureMap"
 PAULI = "PauliFeatureMap"
+
 
 def FQKernel(
   qubits: int, encodes: Optional[int]=2, map: Optional[str]="ZZFeatureMap"

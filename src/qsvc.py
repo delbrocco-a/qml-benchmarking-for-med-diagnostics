@@ -3,6 +3,7 @@ from qiskit_machine_learning.kernels import FidelityQuantumKernel
 
 from src.load_data import TRAINING, TESTING, FEATURES, TARGETS
 
+
 def trainQSVC(qkernel: FidelityQuantumKernel, data: dict) -> QSVC:
   """Trains a QSVC model using prepared quantum kernel & training data"""
   

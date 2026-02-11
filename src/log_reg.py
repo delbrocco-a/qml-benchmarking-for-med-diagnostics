@@ -2,6 +2,7 @@ from sklearn.linear_model import LogisticRegression
 
 from src.load_data import FEATURES, TARGETS
 
+
 def trainLogReg(data: dict) -> LogisticRegression:
   """Trains a classical Logistic Regression model using training data"""
   

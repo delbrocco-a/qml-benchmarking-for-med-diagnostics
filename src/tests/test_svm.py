@@ -1,5 +1,4 @@
 from unittest.mock import MagicMock
-
 from sklearn.svm import SVC
 
 from src.svc import trainSVC, evalSVC

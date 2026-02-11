@@ -4,6 +4,7 @@ from qiskit import QuantumCircuit
 
 from src.qkernel import FQKernel, ZZ, Z, PAULI
 
+
 def test_fqkernel_feature_map_selection():
   cases = [
     (ZZ, ZZFeatureMap),
