@@ -1,9 +1,10 @@
 ---
 
-# INDIVIDUAL PROJECT README (in construction)
+# A Preliminary Investigation into Quantum Machine Learning Algorithms for Medical Diagnostics
 
 ---
 
+> Alexander del Brocco, [supv] Toni Lassila
 
 ## PROJECT SET-UP
 *Preparing your environment*
