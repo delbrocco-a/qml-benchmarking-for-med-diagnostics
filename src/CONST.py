@@ -1,1 +1,1 @@
-FILE = "../data/test.csv"
+FILE = "./data/diabetes.csv"

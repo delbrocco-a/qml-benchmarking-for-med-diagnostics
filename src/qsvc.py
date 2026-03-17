@@ -7,7 +7,7 @@ from src.load_data import TRAINING, TESTING, FEATURES, TARGETS
 def trainQSVC(qkernel: FidelityQuantumKernel, data: dict) -> QSVC:
   """Trains a QSVC model using prepared quantum kernel & training data"""
   
-  qsvc = QSVC(kernel=qkernel)
+  qsvc = QSVC(quantum_kernel=qkernel)
   qsvc.fit(data[FEATURES], data[TARGETS])
 
   return qsvc

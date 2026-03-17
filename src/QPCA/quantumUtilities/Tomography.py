@@ -2,7 +2,8 @@ import numpy as np
 from qiskit.circuit.library.standard_gates import RYGate
 from qiskit import QuantumRegister, ClassicalRegister, QuantumCircuit
 from qiskit.circuit.library import PhaseEstimation
-from qiskit import Aer, transpile
+from qiskit_aer import Aer
+from qiskit import transpile
 import matplotlib.pyplot as plt
 from qiskit.circuit.library.data_preparation.state_preparation import StatePreparation
 from ..warnings_utils.warning_utility import *

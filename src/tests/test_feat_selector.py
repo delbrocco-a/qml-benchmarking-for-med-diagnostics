@@ -62,7 +62,7 @@ def test_qpcaselect_pipeline_shapes(monkeypatch):
   fake_qpca = MagicMock()
   fake_qpca.transform.side_effect = lambda x: x[:, :3]  # fake dimensionality reduction
 
-  monkeypatch.setattr("your_module.QPCA", lambda: fake_qpca)
+  monkeypatch.setattr("src.QPCA.decomposition.QPCA", lambda: fake_qpca)
 
   train_qpca, test_qpca = QPCASelect(select=5, feats=3, data=data)
 
