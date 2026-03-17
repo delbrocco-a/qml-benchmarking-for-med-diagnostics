@@ -3,11 +3,7 @@ from sklearn.feature_selection import SelectKBest, f_classif
 # from src.QPCA.decomposition import QPCA
 import numpy as np
 
-from src.load_data import TRAINING, TESTING, FEATURES, TARGETS
-
-QUBITS = 8
-ESHOTS = 10000
-
+from src.CONST import QUBITS, ESHOTS, TRAINING, TESTING, FEATURES, TARGETS
 
 def PCASelect(
   select: int, feats: int, data: dict

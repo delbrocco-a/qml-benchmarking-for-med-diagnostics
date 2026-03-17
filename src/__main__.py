@@ -43,7 +43,7 @@ bench.run(
 )
 
 actual_feats = pca_data[TRAINING]["features"].shape[1]
-qkernel = FQKernel(qubits=actual_feats, encodes=2, map=ZZ)
+qkernel = FQKernel(qubits=N_FEATS, encodes=2, map=ZZ)
 bench.run(
   model_name="QSVC (ZZFeatureMap)",
   train_fn=lambda: trainQSVC(qkernel, pca_data[TRAINING]),

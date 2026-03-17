@@ -1,12 +1,7 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split as tt_split
 from typing import Optional
-
-
-TRAINING = "training" 
-TESTING  = "testing"
-FEATURES = "features"
-TARGETS = "targets"
+from src.CONST import TRAINING, TESTING, FEATURES, TARGETS
 
 
 def load_csv(file_path: str) -> tuple[pd.DataFrame, list[str]]:
