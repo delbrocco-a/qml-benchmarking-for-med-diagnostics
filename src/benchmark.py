@@ -3,6 +3,8 @@ import functools
 from dataclasses import dataclass, field
 from typing import Callable, Optional
 import numpy as np
+from typing import Optional, Callable
+from src.q_estimate import estimate_kernel_runtime, DEFAULT_SHOTS
 
 from src.load_data import TESTING, FEATURES, TARGETS
 
@@ -16,6 +18,8 @@ class BenchmarkResult:
   eval_time: float            # seconds
   accuracy: float             # 0.0 - 1.0
   extra: dict = field(default_factory=dict)  # optional metadata (e.g. kernel, n_components)
+  quantum_time_s: Optional[float] = None
+  quantum_time_human: Optional[str] = None
 
   def __str__(self) -> str:
     lines = [
@@ -27,6 +31,8 @@ class BenchmarkResult:
     if self.extra:
       for k, v in self.extra.items():
         lines.append(f"  {k:<11}: {v}")
+    if self.quantum_time_s is not None:
+      lines.append(f"  Quantum est. : {self.quantum_time_human}")
     return "\n".join(lines)
 
 
@@ -96,13 +102,14 @@ class Benchmark:
       if not self.results:
         return "No benchmark results recorded."
 
-      header = f"{'Model':<30} {'Train (s)':>10} {'Eval (s)':>10} {'Accuracy':>10}"
+      header = f"{'Model':<30} {'Train (s)':>10} {'Eval (s)':>10} {'Accuracy':>10} {'Quantum est.':>14}"
       sep = "-" * len(header)
       rows = [header, sep]
 
       for r in self.results:
+        q_col = r.quantum_time_human if r.quantum_time_human else "N/A"
         rows.append(
-          f"{r.model_name:<30} {r.train_time:>10.4f} {r.eval_time:>10.4f} {r.accuracy * 100:>9.2f}%"
+          f"{r.model_name:<30} {r.train_time:>10.4f} {r.eval_time:>10.4f} {r.accuracy * 100:>9.2f}% {q_col:>14}"
         )
 
       best = max(self.results, key=lambda r: r.accuracy)
@@ -128,7 +135,7 @@ def timed(label: Optional[str] = None):
         @timed("My function")
         def my_fn(): ...
     """
-    
+
     def decorator(fn: Callable) -> Callable:
       @functools.wraps(fn)
       def wrapper(*args, **kwargs):

@@ -7,13 +7,14 @@ from src.log_reg import trainLogReg, evalLogReg
 from src.qkernel import FQKernel, ZZ
 from src.benchmark import Benchmark
 from src.visualise import visualise_all
+from src.CONST import N_SELECT, N_FEATS, TRAINING, TESTING
+from src.q_estimate import estimate_kernel_runtime
 
 # ── Load & split ──────────────────────────────────────────────────────────
 csv, feats = load_csv(FILE)
 data = split_data(csv, target=feats[-1])
 
 # ── Feature reduction ─────────────────────────────────────────────────────
-N_SELECT, N_FEATS = 10, 4
 train_pca, test_pca = PCASelect(select=N_SELECT, feats=N_FEATS, data=data)
 
 pca_data = {
@@ -53,7 +54,18 @@ bench.run(
   extra={"map": ZZ, "qubits": N_FEATS, "reps": 2},
 )
 
+qe = estimate_kernel_runtime(
+  n_train  = pca_data[TRAINING]["features"].shape[0],
+  qubits   = N_FEATS,
+  reps     = 2,
+  map_name = ZZ,
+)
+bench.results[-1].quantum_time_s     = qe.total_time_s
+bench.results[-1].quantum_time_human = qe.total_time_human
+
 print(bench.summary())
+
+
 
 # ── Visualise ─────────────────────────────────────────────────────────────
 # Pass the raw (pre-PCA) training features for dataset views so you see
