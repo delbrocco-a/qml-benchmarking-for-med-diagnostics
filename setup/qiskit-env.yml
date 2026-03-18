@@ -10,5 +10,5 @@ dependencies:
   - scipy
   - pip
   - pip:
-    - qiskit
+    - qiskit-terra
     - qiskit-machine-learning
