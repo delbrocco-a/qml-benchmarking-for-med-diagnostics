@@ -10,5 +10,6 @@ dependencies:
   - scipy
   - pip
   - pip:
-    - qiskit-terra
-    - qiskit-machine-learning
+    - qiskit==1.2.4
+    - qiskit-machine-learning==0.8.2
+    - qiskit-algorithms==0.3.1

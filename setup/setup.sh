@@ -2,6 +2,8 @@
 #!/bin/bash
 set -e
 
+conda env remove -n qml-env
+
 echo "Creating qml-env..."
 conda env create -f qiskit-env.yml
 
