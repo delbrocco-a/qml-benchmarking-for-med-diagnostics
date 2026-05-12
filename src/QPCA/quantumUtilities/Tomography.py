@@ -7,8 +7,9 @@ from qiskit import transpile
 import matplotlib.pyplot as plt
 from qiskit.circuit.library.data_preparation.state_preparation import StatePreparation
 from ..warnings_utils.warning_utility import *
-from qiskit.primitives import BackendSampler
-from qiskit_ibm_runtime import Sampler, Options
+# BackendSampler and qiskit_ibm_runtime.Sampler removed in Qiskit 2.x.
+# Local Aer simulation is the only backend used here, so those imports
+# are not needed.
 
 class StateVectorTomography():
 
@@ -51,14 +52,8 @@ class StateVectorTomography():
         if drawing_amplitude_circuit:
             display(amplitude_estimation_circuit.draw('mpl'))
         
-        if isinstance(backend, Sampler) or isinstance(backend, BackendSampler):
-            backend.set_options(shots=n_shots)
-            job = backend.run(amplitude_estimation_circuit)
-            shots = job.result().metadata[0].get("shots")                     
-            counts = {k: round(v * shots) for k, v in job.result().quasi_dists[0].binary_probabilities().items()}
-        else:
-            job = backend.run(transpile(amplitude_estimation_circuit, backend=backend), shots=n_shots)
-            counts = job.result().get_counts()
+        job = backend.run(transpile(amplitude_estimation_circuit, backend=backend), shots=n_shots)
+        counts = job.result().get_counts()
         
         #compute estimated probabilities as number of observation for the i-th state divided by the total number of shots performed
         
@@ -128,14 +123,8 @@ class StateVectorTomography():
         if drawing_sign_circuit:
             display(sign_estimation_circuit.draw('mpl'))
 
-        if isinstance(backend, Sampler) or isinstance(backend, BackendSampler):
-            backend.set_options(shots=n_shots)
-            job = backend.run(sign_estimation_circuit)
-            shots = job.result().metadata[0].get("shots")                 
-            counts_for_sign = {k: round(v * shots) for k, v in job.result().quasi_dists[0].binary_probabilities().items()}
-        else:
-            job = backend.run(transpile(sign_estimation_circuit, backend=backend), shots=n_shots)
-            counts_for_sign = job.result().get_counts()
+        job = backend.run(transpile(sign_estimation_circuit, backend=backend), shots=n_shots)
+        counts_for_sign = job.result().get_counts()
         tmp=np.zeros(2**c_size)
         
         #check the sign: we consider only the results with control qubit 0
