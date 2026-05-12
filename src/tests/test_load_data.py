@@ -4,6 +4,18 @@ from src.load_data import load_csv, split_data
 
 
 LOAD_CSV_TEST_CONTENT = "a,b,c\n1,2,3\n4,5,6"
+
+# Regression: heart3-style CSV where target is text ('negative'/'positive').
+# pandas >=2.0 StringDtype silently rejected integer assignment from
+# pd.factorize, leaving the column as strings; pd.to_numeric then coerced
+# everything to NaN, fillna(0) made all targets 0, destroying class info.
+LOAD_CSV_TEXT_TARGET = (
+    "feature1,feature2,label\n"
+    "1.0,2.0,negative\n"
+    "3.0,4.0,positive\n"
+    "5.0,6.0,negative\n"
+    "7.0,8.0,positive\n"
+)
 LOAD_CSV_TEST_ANSWERS = [
   ["a", "b", "c"], (2, 3)
 ]
@@ -62,3 +74,26 @@ def test_split_data_basic():
   # Check that training + testing rows equals original data
   train_len = len(result["training"]["features"])
   assert train_len + test_len == total_rows
+
+
+def test_load_csv_text_target_both_classes_preserved(tmp_path):
+  """Regression: text target columns must encode to both classes, not all-zero.
+
+  Covers the pandas >=2.0 StringDtype bug where factorize codes were
+  silently dropped on reassignment, collapsing all targets to 0 via NaN.
+  """
+  test_file = tmp_path / "text_target.csv"
+  test_file.write_text(LOAD_CSV_TEXT_TARGET)
+
+  csv, feats = load_csv(str(test_file))
+
+  target_col = feats[-1]   # 'label'
+  unique_vals = csv[target_col].unique()
+
+  # Must have exactly two distinct integer codes (0 and 1), not all zeros
+  assert len(unique_vals) == 2, (
+      f"Expected 2 classes after encoding, got {len(unique_vals)}: {unique_vals}"
+  )
+  assert csv[target_col].dtype != object, (
+      "Target column must be numeric after load_csv, not object/string"
+  )

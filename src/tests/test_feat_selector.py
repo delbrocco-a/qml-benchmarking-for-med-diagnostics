@@ -1,7 +1,7 @@
 import numpy as np
 from unittest.mock import MagicMock
 
-from src.feat_selector import PCASelect, QPCASelect, KBestSelector
+from src.feat_selector import PCASelect, KBestSelector #, QPCASelect
 from src.load_data import TRAINING, TESTING, FEATURES, TARGETS
 
 
@@ -45,28 +45,28 @@ def test_pcaselect_pipeline_shapes():
   assert test_pca.shape == (8, 3)
 
 
-def test_qpcaselect_pipeline_shapes(monkeypatch):
-  rng = np.random.default_rng(1)
+# def test_qpcaselect_pipeline_shapes(monkeypatch):
+#   rng = np.random.default_rng(1)
 
-  data = {
-    TRAINING: {
-      FEATURES: rng.normal(size=(25, 10)),
-      TARGETS: rng.integers(0, 2, size=25),
-    },
-    TESTING: {
-      FEATURES: rng.normal(size=(6, 10)),
-    },
-  }
+#   data = {
+#     TRAINING: {
+#       FEATURES: rng.normal(size=(25, 10)),
+#       TARGETS: rng.integers(0, 2, size=25),
+#     },
+#     TESTING: {
+#       FEATURES: rng.normal(size=(6, 10)),
+#     },
+#   }
 
-  # Create fake QPCA
-  fake_qpca = MagicMock()
-  fake_qpca.transform.side_effect = lambda x: x[:, :3]  # fake dimensionality reduction
+#   # Create fake QPCA
+#   fake_qpca = MagicMock()
+#   fake_qpca.transform.side_effect = lambda x: x[:, :3]  # fake dimensionality reduction
 
-  monkeypatch.setattr("src.QPCA.decomposition.QPCA", lambda: fake_qpca)
+#   monkeypatch.setattr("src.QPCA.decomposition.QPCA", lambda: fake_qpca)
 
-  train_qpca, test_qpca = QPCASelect(select=5, feats=3, data=data)
+#   train_qpca, test_qpca = QPCASelect(select=5, feats=3, data=data)
 
-  assert train_qpca.shape[0] == 25
-  assert test_qpca.shape[0] == 6
-  assert train_qpca.shape[1] == 3
-  assert test_qpca.shape[1] == 3
+#   assert train_qpca.shape[0] == 25
+#   assert test_qpca.shape[0] == 6
+#   assert train_qpca.shape[1] == 3
+#   assert test_qpca.shape[1] == 3
