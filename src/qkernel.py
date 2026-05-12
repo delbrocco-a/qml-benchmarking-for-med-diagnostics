@@ -9,16 +9,18 @@ PAULI = "PauliFeatureMap"
 
 
 def FQKernel(
-  qubits: int, encodes: Optional[int]=2, map: Optional[str]="ZZFeatureMap"
+  qubits: int, reps: Optional[int]=2, map: Optional[str]="ZZFeatureMap"
 ) -> FidelityQuantumKernel:
   """Generates a Quantum Kernel using feature map & settings"""
 
   match(map):
     case "ZFeatureMap":
-      feat_map = ZFeatureMap(feature_dimension=qubits, reps=encodes)
+      feat_map = ZFeatureMap(feature_dimension=qubits, reps=reps)
     case "PauliFeatureMap":
-      feat_map = PauliFeatureMap(feature_dimension=qubits, reps=encodes)
+      feat_map = PauliFeatureMap(feature_dimension=qubits, reps=reps)
+    case "ZZFeatureMap":
+      feat_map = ZZFeatureMap(feature_dimension=qubits, reps=reps)
     case _:
-      feat_map = ZZFeatureMap(feature_dimension=qubits, reps=encodes)
+      raise ValueError(f"Unknown feature map: {map!r}. Expected ZZFeatureMap, ZFeatureMap, or PauliFeatureMap.")
 
   return FidelityQuantumKernel(feature_map=feat_map)
