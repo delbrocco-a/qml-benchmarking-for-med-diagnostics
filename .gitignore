@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+*.pyo
+outputs/
+output.log
+*.log
+.DS_Store
+src/QPCA/**/__pycache__/
+src/QPCA/**/.ipynb_checkpoints/
+src/QPCA/docs1/
+docs/*.odt
+docs/**/*.odt
