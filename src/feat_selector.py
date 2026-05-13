@@ -1,7 +1,6 @@
 from sklearn.decomposition import PCA
 from sklearn.feature_selection import SelectKBest, f_classif
 from sklearn.preprocessing import MinMaxScaler
-from src.QPCA.decomposition import QPCA
 import numpy as np
 
 from src.CONST import TRAINING, TESTING, FEATURES, TARGETS
@@ -24,32 +23,6 @@ def PCASelect(
     feats_test_pca = pca.transform(feats_test_select)
     return feats_train_pca, feats_test_pca
 
-
-def QPCASelect(
-    select: int, feats: int, data: dict
-) -> tuple[np.ndarray, np.ndarray]:
-    """SelectKBest (select features), then Quantum PCA (feats components).
-
-    Uses Eagle-quantum/QuPCA (Casale et al.) via local Aer simulation.
-    Encodes the feature covariance matrix into a QRAM circuit, applies
-    phase estimation with `feats` resolution qubits, and reconstructs
-    eigenvectors via state vector tomography.
-
-    Only practical at feats <= 4 on consumer hardware (circuit size grows
-    as ceil(log2(select^2)) + feats qubits total).
-    """
-    feats_train_select, feats_test_select = KBestSelector(select, data)
-
-    cov = np.cov(feats_train_select.T)
-
-    qpca = QPCA()
-    qpca.fit(input_matrix=cov, resolution=feats)
-    qpca.eigenvectors_reconstruction(n_shots=QPCA_SHOTS, n_repetitions=3)
-
-    feats_train_qpca = qpca.transform(feats_train_select)
-    feats_test_qpca = qpca.transform(feats_test_select)
-
-    return feats_train_qpca, feats_test_qpca
 
 
 def ScaleForQuantum(

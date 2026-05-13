@@ -49,7 +49,7 @@ sys.stdout = _Tee(sys.__stdout__, _log_file)
 ### Import Project Library
 from src.CONST import ON, OFF, TRAINING, TESTING, FEATURES, TARGETS
 from src.load_data import load_csv, split_data, cv_splits, N_FOLDS
-from src.feat_selector import PCASelect, QPCASelect, ScaleForQuantum
+from src.feat_selector import PCASelect, ScaleForQuantum
 from src.svc import trainSVC, evalSVC, RBF, tuneSVC
 from src.qsvc import trainQSVC, evalQSVC, trainPQSVC, evalPQSVC
 from src.log_reg import trainLogReg, evalLogReg, tuneLogReg
@@ -165,127 +165,11 @@ EXIT_ALL_SKIPPED = 1
 EXIT_EXCEPTION   = 2
 
 
-# ============================================================================
-# Ex1: QPCA Preliminary — classical vs quantum PCA at 2 features per dataset
-# ============================================================================
-# Single-run (no CV): QPCA is a secondary exploratory experiment and is
-# fragile at higher qubit counts (see feat_selector.py for details).
 
-print("- QPCA Preliminary Run  (2 qubits, classical vs quantum PCA) " + "-" * 19)
-
-QPCA_N_FEATS  = 2
-any_completed = False
-
-try:
-    for file_path, ds_label, n_select in DATASETS:
-
-        csv, feats = load_csv(file_path)
-        data       = split_data(csv, target=feats[-1], split=0.2)
-        k_select   = max(QPCA_N_FEATS, min(n_select, len(feats) - 1))
-
-        print(
-            f"\n -|- {ds_label} w/ {QPCA_N_FEATS} features  "
-            f"(SelectKBest={k_select} -> PCA={QPCA_N_FEATS})"
-        )
-
-        train_pca, test_pca = PCASelect(select=k_select, feats=QPCA_N_FEATS, data=data)
-        train_pca_q, test_pca_q = ScaleForQuantum(train_pca, test_pca)
-
-        pca_data = {
-            TRAINING: {FEATURES: train_pca_q, TARGETS: data[TRAINING][TARGETS]},
-            TESTING:  {FEATURES: test_pca_q,  TARGETS: data[TESTING][TARGETS]},
-        }
-
-        if not enough_classes(pca_data):
-            print("Skipped: single class in test/train after PCA reduction.")
-            continue
-
-        try:
-            train_qpca, test_qpca = QPCASelect(select=k_select, feats=QPCA_N_FEATS, data=data)
-            train_qpca = np.real(train_qpca)
-            test_qpca  = np.real(test_qpca)
-
-            # Guard before ScaleForQuantum: a (n, 0) array causes MinMaxScaler
-            # to crash with a misleading error rather than the one below.
-            if train_qpca.shape[1] < QPCA_N_FEATS:
-                raise ValueError(
-                    f"QPCA returned {train_qpca.shape[1]}/{QPCA_N_FEATS} components; "
-                    f"increase QPCA_SHOTS or n_repetitions in feat_selector.py"
-                )
-
-            train_qpca_q, test_qpca_q = ScaleForQuantum(train_qpca, test_qpca)
-
-            qpca_data = {
-                TRAINING: {FEATURES: train_qpca_q, TARGETS: data[TRAINING][TARGETS]},
-                TESTING:  {FEATURES: test_qpca_q,  TARGETS: data[TESTING][TARGETS]},
-            }
-
-            if not enough_classes(qpca_data):
-                raise ValueError("single class after QPCA transform")
-
-        except Exception as exc:
-            print(f"QPCA unavailable for {ds_label}: {exc}")
-            continue
-
-        n_train_full = pca_data[TRAINING][FEATURES].shape[0]
-        if n_train_full > QSVC_MAX_TRAIN:
-            idx = np.random.default_rng(42).choice(n_train_full, QSVC_MAX_TRAIN, replace=False)
-            qsvc_pca  = {FEATURES: pca_data[TRAINING][FEATURES][idx],
-                         TARGETS:  pca_data[TRAINING][TARGETS][idx]}
-            qsvc_qpca = {FEATURES: qpca_data[TRAINING][FEATURES][idx],
-                         TARGETS:  qpca_data[TRAINING][TARGETS][idx]}
-        else:
-            qsvc_pca  = pca_data[TRAINING]
-            qsvc_qpca = qpca_data[TRAINING]
-
-        qkernel_pca  = FQKernel(qubits=QPCA_N_FEATS, reps=REPS, map=ZZ)
-        qkernel_qpca = FQKernel(qubits=QPCA_N_FEATS, reps=REPS, map=ZZ)
-
-        configs = [
-            ("Classical PCA", pca_data,  qsvc_pca,  qkernel_pca),
-            ("Quantum PCA",   qpca_data, qsvc_qpca, qkernel_qpca),
-        ]
-        for cfg_label, cfg_data, cfg_qsvc, cfg_kernel in configs:
-            bench_q = Benchmark()
-            bench_q.run(
-                model_name = "SVC (rbf)",
-                train_fn   = lambda d=cfg_data: trainSVC(d[TRAINING], kernel=RBF),
-                eval_fn    = lambda m, d=cfg_data: evalSVC(m, d[TESTING]),
-                train_data = cfg_data[TRAINING], test_data=cfg_data[TESTING],
-            )
-            bench_q.run(
-                model_name = "Logistic Regression",
-                train_fn   = lambda d=cfg_data: trainLogReg(d[TRAINING]),
-                eval_fn    = lambda m, d=cfg_data: evalLogReg(m, d[TESTING]),
-                train_data = cfg_data[TRAINING], test_data=cfg_data[TESTING],
-            )
-            bench_q.run(
-                model_name = "QSVC",
-                train_fn   = lambda k=cfg_kernel, q=cfg_qsvc: trainQSVC(k, q),
-                eval_fn    = lambda m, d=cfg_data: evalQSVC(m, d[TESTING]),
-                train_data = cfg_qsvc, test_data=cfg_data[TESTING],
-            )
-            bench_q.run(
-                model_name = "PegasosQSVC",
-                train_fn   = lambda k=cfg_kernel, q=cfg_qsvc: trainPQSVC(
-                    k, q, C=PEGASOS_C, tau=PEGASOS_TAU
-                ),
-                eval_fn    = lambda m, d=cfg_data: evalPQSVC(m, d[TESTING]),
-                train_data = cfg_qsvc, test_data=cfg_data[TESTING],
-            )
-            print(f"\n  [{cfg_label}]")
-            print(bench_q.summary())
-
-        any_completed = True
-
-except Exception:
-    ex1_code = EXIT_EXCEPTION
-else:
-    ex1_code = EXIT_ALL_SKIPPED if not any_completed else EXIT_SUCCESS
 
 
 # ============================================================================
-# Ex2: Quantum vs Classical — 5-fold stratified CV, 4 datasets x 7 qubit counts
+# Ex1: Quantum vs Classical - 5-fold stratified CV, 4 datasets x 7 qubit counts
 # ============================================================================
 
 ### Cross-dataset summary: { dataset_label: { n_qubits: [BenchmarkResult] } }
